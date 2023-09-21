@@ -25,6 +25,11 @@ import HyperDX from '@hyperdx/browser';
 export default function MyApp({ Component, pageProps }: AppProps) {
   // port to react query ? (needs to wrap with QueryClientProvider)
   useEffect(() => {
+    //Extract hostname from HDX_COLLECTOR_URL and then Created a RegExp from the extracted hostname
+    const collectorHostname = new URL(HDX_COLLECTOR_URL).hostname;
+    const collectorRegExp = new RegExp(collectorHostname, 'i');
+
+
     fetch('/api/config')
       .then(res => res.json())
       .then(_jsonData => {
@@ -35,7 +40,8 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             maskAllInputs: true,
             maskAllText: true,
             service: _jsonData.serviceName,
-            tracePropagationTargets: [/localhost/i, /hyperdx\.io/i],
+            //Used the extracted hostname in tracePropagationTargets
+            tracePropagationTargets: [/localhost/i, /hyperdx\.io/i, collectorRegExp],
             url: _jsonData.collectorUrl,
           });
         }
